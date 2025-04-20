@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Parser</title>
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            width: 100%;
+            overflow-x: hidden;
+            background-color: #D1D5DB;
+        }
+        .hidden {
+            display: none;
+        }
+        .visible {
+            display: block;
+        }
+       
+        .home-icon {
+            font-size: 2rem;
+            color: #fff;
+        }
+        .login-icon {
+            font-size: 2rem;
+            color: #FDD835;
+        }
+        .signup-icon {
+            font-size: 2rem;
+            color: #4F46E5;
+        }
+        header {
+            background-color: #4F46E5;
+            color: white;
+            padding: 0 .5rem;   
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100vw;
+            height: 60px;
+            position: sticky;
+            top: 0;
+            
+        }
+        header nav ul {
+            list-style: none;
+            padding: 0 .5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+        header nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        header nav ul li a:hover {
+            text-decoration: underline;
+        }
+        main {
+            flex: 1;
+            justify-items: center;
+            align-items: center; 
+            text-align: center;
+            width: 100%;
+            height: 100%;/* Ensures the main content takes up available space */
+        }
+        #upload-form{
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 70%;
+            height: 50%;
+            gap: 1rem;
+            padding: 2rem;
+            background-color: #F3F4F6;
+            border: 2px dashed black;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin: 2rem auto;
+        }
+        #upload{
+            background-color: #4F46E5;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 40px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+
+        #resume-upload-form{
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        #resume-file{
+            padding: 0.5rem;
+            border: 1px solid #D1D5DB;
+            border-radius: 4px;
+            font-size: 1rem;
+            width: 50%;
+        }
+        #get-started-button{
+            background-color: #4F46E5;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 40px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        #get-started-button:hover{
+            background-color: white;
+            color: #4F46E5;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 40px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        footer {
+            background-color: #4F46E5;
+            color: white;
+            text-align: center;
+            padding: 1rem;
+            width: 100vw;
+        }
+        #login, #signup {
+            background-color: #FFFFFF;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            max-width: 400px;
+            margin: 2rem auto;
+            text-align: left;
+        }
+        #login h2, #signup h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        #login form, #signup form {
+            display: flex;
+            flex-direction: column;
+            
+            gap: 1rem;
+        }
+        #login input, #signup input {
+            padding: 0.5rem;
+            border: 1px solid #D1D5DB;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        #login button, #signup button {
+            background-color: #4F46E5;
+            color: white;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 4px;
+            width: 50%;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        #login button:hover, #signup button:hover {
+            background-color: white;
+            color: #4F46E5;
+        }
+        .modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #FFFFFF;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            min-width: 500px;
+            z-index: 1000;
+        }
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+        .modal h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        .modal form {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            width: 100%;
+        }
+        .modal input {
+            padding: 0.5rem;
+            border: 1px solid #D1D5DB;
+            border-radius: 4px;
+            font-size: 1rem;
+            width: 100%;
+        }
+        .modal button {
+            background-color: #4F46E5;
+            color: white;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 40px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .modal button:hover {
+            background-color: #4F46E5;
+        }
+        .close-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            color: #888;
+            width:50px;
+            height: 50px;
+            border-radius: 50%;
+        }
+        .close-button:hover {
+            color: #fff;
+        }
+
+        .Heading {
+            font-size: 5rem;
+            text-align: center;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        .subHeading {
+            font-size: 2rem;
+            text-align: center;
+            font-weight: 400;
+            margin-bottom: 2rem;
+        }
+        .logo{
+            margin-left: 2rem;
+            display: flex;
+            gap: 0.2rem;
+            align-items: center;
+            justify-content: center;
+        }
+        #logout{
+            background-color: transparent;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .json-output{
+            text-align: left;
+            background-color: #3a3a3a;
+            border-radius: 1rem;
+            color:#fff;
+            padding: 1rem;
+        }
+
+        #copy-json{
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 0.2rem;
+            background-color: #4F46E5;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            height:15%;
+            width: 5%;
+        }
+        #copy-json i {
+            font-size: 1.5rem;
+            color: white;
+        }
+        #output{
+            color:#fff;
+        }
+        #card-container{
+            text-align: justify;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        .card{
+            width: 400px;
+            height: 200px;
+            padding: 1rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background-color: #F3F4F6;
+        }
+        #login-modal h2{
+            color:#4F46E5;
+        }
+        .card h2{
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #4F46E5;
+        }
+
+        /* Media Query for Small Devices */
+        @media (max-width: 768px) {
+            #copy-json{
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 0.2rem;
+            background-color: #4F46E5;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            height:15%;
+            width: 15%;
+            opacity: 20%;
+        }
+        #copy-json:hover{
+            opacity: 100%;
+        }
+            #copy-json i {
+            font-size: 1rem;
+            color: white;
+        }
+            .Heading{
+                font-size: 3.5rem;
+            }
+            .subHeading{
+                font-size: 1.5rem; /* Adjust font size for smaller screens */
+            }
+            .modal {
+                width: 300px; /* Adjust width to auto for smaller devices */
+                min-width: unset; /* Remove the minimum width */
+                padding: 1.5rem; /* Adjust padding for smaller screens */
+            }
+        }
+
+        @media (max-width: 480px) {
+
+            #copy-json{
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 0.2rem;
+            background-color: #4F46E5;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            height:15%;
+            width: 15%;
+        }
+            #copy-json i {
+            font-size: 1rem;
+            color: white;
+        }
+            .Heading{
+                font-size: 3.5rem;
+            }
+            .subHeading{
+                font-size: 1.5rem; /* Adjust font size for smaller screens */
+            }
+            .modal {
+                width: 90%; /* Take up 90% of the screen width */
+                padding: 1rem; /* Further reduce padding for very small screens */
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo"> <i  class="fas fa-file-alt home-icon"></i>
+            Resume Parser</div>
+        <nav>
+            <ul>
+                <li><a href="#" id="home-link">Home</a></li>
+                <li><a href="#" id="login-link">Login</a></li>
+                <li><a href="#" id="signup-link">Signup</a></li>
+                <button id="logout" onclick="logout()">Logout</button>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Home Section -->
+        <section id="home" class="visible fade-in">
+            <div class="text-center">
+                
+                <h1 class="Heading">Resume Parser</h1>
+                <p class="subHeading">Unlock your career potential with our advanced resume parsing technology.</p>
+                <button id="get-started-button" >Get Started</button>
+            </div>
+        </section>
+
+        
+        <section id="card-container" class="hiden fade-in">
+            <h2 class="text-2xl  text-center capitalize text-zinc-500">How Resume Parser Works</h2>
+            <div class="container flex flex-row gap-10 flex-wrap justify-center items-center mb-10"><div class="card shadow-md">
+                <h2> Upload Your Resume </h2>
+                <p>Upload your resume in DOCX or PDF format. Our system supports various resume layouts.</p>
+            </div>
+            <div class="card">
+                <h2> Parsing & Analysis</h2>
+                <p>Our AI-powered parser extracts key information such as skills, experience, education, and contact details.</p>
+            </div>
+            <div class="card">
+                <h2> Get Results</h2>
+                <p>Receive a structured report with your resume data, tips for improvement.</p>
+            </div></div>
+            
+        </section>
+
+        <!-- Login Modal -->
+        <div id="login-modal" class="hidden">
+            <div class="modal-overlay"></div>
+            <div class="modal">
+                <!-- Close Button -->
+                <button class="close-button" onclick="hideModal(loginModal)">X</button>
+                <h2>Login</h2>
+                <form id="login-form">
+                    <label for="login-email">Enter Email</label>
+                    <input type="email" id="login-email" required>
+                    <label for="login-password">Password:</label>
+                    <input type="password" id="login-password" required>
+                    <button type="submit">Login</button>
+                    <p >Don't have an account <a id='signup-call' href="signup-modal"style="color: #4F46E5;">Create One</a></p>
+                </form>
+                <!-- Error Message -->
+                <div id="login-error" style="color: red; display: none; margin-top: 1rem;"></div>
+            </div>
+        </div>
+
+        <!-- Signup Modal -->
+        <div id="signup-modal" class="hidden">
+            <div class="modal-overlay"></div>
+            <div class="modal">
+                <!-- Close Button -->
+                <button class="close-button" onclick="hideModal(signupModal)">X</button>
+                <h2>Signup</h2>
+                <form id="signup-form">
+                    <label for="signup-username">Enter Username</label>
+                    <input type="text" id="signup-username" required>
+                    <label for="signup-email">Enter Email</label>
+                    <input type="email" id="signup-email" required>
+                    <label for="signup-password">Enter Password</label>
+                    <input type="password" id="signup-password" required>
+                    <button type="submit">Signup</button>
+                    <p >Already have an account <a id='login-call' href="login-modal" style="color: #4F46E5;">Log In</a></p>
+                </form>
+            </div>
+        </div>
+
+        <!-- Upload Form Section -->
+        <section id="upload-form" class="hidden fade-in">
+            <h2>Upload Your Resume</h2>
+            <form id="resume-upload-form" method="POST" action="/upload" enctype="multipart/form-data">
+                <label for="resume-file">Select your resume (PDF/DOCX):</label>
+                <input type="file" id="resume-file" name="resume-file" accept=".pdf,.doc,.docx" required>
+                <button id="upload" type="submit">Upload</button>
+            </form>
+            <div class="json-output" style="position: relative;">
+               <button id="copy-json" > <i class="fas fa-copy"></i></button>
+            <div id="output">     
+            </div>
+        </div>
+            
+            
+        </section>
+        
+    </main>
+
+    <footer >
+        <p>© 2025 Resume Parser. All rights reserved.</p>
+    </footer>
+
+    <script>
+    const uploadFormSection = document.getElementById('upload-form');
+    const loginModal = document.getElementById('login-modal');
+    const signupModal = document.getElementById('signup-modal');
+    const logoutButton = document.getElementById('logout');
+    const loginLink = document.getElementById('login-link');
+    const signupLink = document.getElementById('signup-link');
+    const getStartedButton = document.getElementById('get-started-button');
+    const outputDiv = document.getElementById('output'); // Div to display parsed JSON data
+    const resumeUploadForm = document.getElementById('resume-upload-form'); // Form element
+    const fileInput = document.getElementById('resume-file'); // File input element
+    const copyJsonButton = document.getElementById('copy-json'); // Reference the Copy JSON button
+
+    // Reference the Heading and Subheading elements
+    const heading = document.querySelector('.Heading');
+    const subHeading = document.querySelector('.subHeading');
+
+    // Reference the Card Container element
+    const cardContainer = document.getElementById('card-container');
+
+    // Initially hide the logout button
+    logoutButton.style.display = 'none';
+
+    // Function to hide buttons after login
+    function hideButtonsAfterLogin() {
+        getStartedButton.style.display = 'none';
+        loginLink.style.display = 'none';
+        signupLink.style.display = 'none';
+        logoutButton.style.display = 'inline-block'; // Show the logout button
+    }
+
+    // Function to hide buttons and headings after login
+    function hideElementsAfterLogin() {
+        getStartedButton.style.display = 'none'; // Hide the Get Started button
+        loginLink.style.display = 'none'; // Hide the Login link
+        signupLink.style.display = 'none'; // Hide the Signup link
+        logoutButton.style.display = 'inline-block'; // Show the Logout button
+        heading.style.display = 'none'; // Hide the Heading
+        subHeading.style.display = 'none'; // Hide the Subheading
+        cardContainer.style.display = 'none'; // Hide the Card Container
+    }
+
+    // Flag to track if any modal is currently open
+    let isAnyModalOpen = false;
+
+    // Function to show a modal and update the flag
+    function showModal(modal) {
+        loginModal.classList.add('hidden');
+        signupModal.classList.add('hidden');
+        modal.classList.remove('hidden');
+        isAnyModalOpen = true; // Set the flag to true when a modal is opened
+    }
+
+    // Function to hide a modal and update the flag
+    function hideModal(modal) {
+        modal.classList.add('hidden');
+        isAnyModalOpen = false; // Set the flag to false when a modal is closed
+    }
+
+    // Clear the output div on page reload and handle login state
+    window.onload = () => {
+        outputDiv.innerHTML = '<p style="text-wrap:wrap">Your Parsed Data will Appear Here </p>'; // Clear the content of the output div
+        copyJsonButton.style.display = 'none'; // Hide the Copy JSON button
+
+        // Check if the user is already logged in
+        const isLoggedIn = localStorage.getItem('isLoggedIn');
+        if (isLoggedIn === 'true') {
+            uploadFormSection.classList.remove('hidden'); // Show the Upload Form
+            hideButtonsAfterLogin(); // Hide login/signup buttons and show logout
+            cardContainer.style.display = 'none'; // Hide the Card Container
+            heading.style.display = 'none'; // Hide the Heading
+            subHeading.style.display = 'none'; // Hide the Subheading
+        } else {
+            uploadFormSection.classList.add('hidden'); // Ensure the Upload Form is hidden
+            // Show login modal after 3 seconds if no modal is open
+            setTimeout(() => {
+                if (!isAnyModalOpen) {
+                    showModal(loginModal);
+                }
+            }, 3500);
+        }
+    };
+
+    // Handle Login Form Submission
+    document.getElementById('login-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const email = document.getElementById('login-email').value;
+        const password = document.getElementById('login-password').value;
+
+        // Retrieve existing users from localStorage
+        const users = JSON.parse(localStorage.getItem('users')) || [];
+
+        // Check if the user exists and the password matches
+        const user = users.find(user => user.email === email && user.password === password);
+
+        if (user) {
+            alert('Login successful!');
+            localStorage.setItem('isLoggedIn', 'true'); // Save login state
+            hideModal(loginModal);
+            uploadFormSection.classList.remove('hidden'); // Show the Upload Form after login
+            hideElementsAfterLogin(); // Hide login/signup buttons, heading, subheading, and card container
+        } else {
+            // Display an error message and keep the Login Modal open
+            const loginError = document.getElementById('login-error');
+            loginError.textContent = 'Invalid credentials! Please try again.';
+            loginError.style.display = 'block';
+        }
+    });
+
+    // Handle Signup Form Submission
+    document.getElementById('signup-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const username = document.getElementById('signup-username').value;
+        const email = document.getElementById('signup-email').value;
+        const password = document.getElementById('signup-password').value;
+
+        const users = JSON.parse(localStorage.getItem('users')) || [];
+        const userExists = users.some(user => user.username === username);
+
+        if (userExists) {
+            alert('Username already exists! Please log in.');
+            hideModal(signupModal);
+            showModal(loginModal);
+        } else {
+            users.push({ username, email, password });
+            localStorage.setItem('users', JSON.stringify(users));
+            alert('Signup successful! Please log in.');
+            hideModal(signupModal);
+            showModal(loginModal);
+        }
+    });
+
+    // Handle Resume Upload Form Submission
+    resumeUploadForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const file = fileInput.files[0];
+
+        if (!file) {
+            alert('Please select a file to upload.');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('resume-file', file);
+
+        // Simulate server-side processing and display JSON data
+        fetch('/upload', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json(); // Assuming the server returns JSON data
+        })
+        .then(data => {
+            // Store the parsed JSON data in localStorage
+            localStorage.setItem('parsedResume', JSON.stringify(data));
+
+            // Display the parsed JSON data in the output div
+            outputDiv.style.color = '#fff'; // Reset color to black for JSON display
+            outputDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+
+            // Show the Copy JSON button
+            copyJsonButton.style.display = 'inline-block';
+
+            // Clear the input fields after displaying the result
+            resumeUploadForm.reset();
+        })
+        .catch(error => {
+            console.error('Error uploading file:', error);
+            outputDiv.style.color = 'red'; // Set color to red for error messages
+            outputDiv.textContent = 'An error occurred while uploading the file. Please try again.';
+        });
+    });
+
+    // Copy JSON data to clipboard
+    copyJsonButton.addEventListener('click', () => {
+        const jsonText = outputDiv.textContent; // Get the JSON text from the output div
+        navigator.clipboard.writeText(jsonText).then(() => {
+            alert('JSON data copied to clipboard!');
+        }).catch(err => {
+            console.error('Failed to copy JSON:', err);
+        });
+    });
+
+    // Logout Functionality
+    function logout() {
+        localStorage.removeItem('isLoggedIn'); // Clear login state
+        localStorage.removeItem('parsedResume'); // Clear parsed resume data
+        alert('You have been logged out.');
+        location.reload(); // Reload the page to reset the state
+    }
+
+    // Display parsed resume data if it exists in localStorage
+    const parsedResume = localStorage.getItem('parsedResume');
+    if (parsedResume) {
+        outputDiv.innerHTML = `<pre>${JSON.stringify(JSON.parse(parsedResume), null, 2)}</pre>`;
+    }
+
+    // Show Login Modal on clicking Login link or Get Started button
+    loginLink.addEventListener('click', (e) => {
+        e.preventDefault(); // Prevent default link behavior
+        showModal(loginModal); // Show the Login Modal
+    });
+
+    getStartedButton.addEventListener('click', (e) => {
+        e.preventDefault(); // Prevent default button behavior
+        showModal(loginModal); // Show the Login Modal
+    });
+
+    // Show Signup Modal on clicking Signup link
+    signupLink.addEventListener('click', (e) => {
+        e.preventDefault(); // Prevent default link behavior
+        showModal(signupModal); // Show the Signup Modal
+    });
+
+    // Show Signup Modal when clicking "Create One" in the Login Modal
+    document.getElementById('signup-call').addEventListener('click', (e) => {
+        e.preventDefault(); // Prevent default link behavior
+        hideModal(loginModal); // Hide the Login Modal
+        showModal(signupModal); // Show the Signup Modal
+    });
+
+    // Show Login Modal when clicking "Log In" in the Signup Modal
+    document.getElementById('login-call').addEventListener('click', (e) => {
+        e.preventDefault(); // Prevent default link behavior
+        hideModal(signupModal); // Hide the Signup Modal
+        showModal(loginModal); // Show the Login Modal
+    });
+</script>
+</body>
+</html>
